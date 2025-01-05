@@ -31,7 +31,7 @@
 </div>
 
 <div class="form-container">
-    <form action="principal.html" method="GET" id="formulario">
+    <form action="controlInfoAlert.php" method="POST" id="formulario">
         <div class="form-group">
             <label for="dni">DNI</label>
             <input type="text" id="dni" name="dni" required>
@@ -58,22 +58,13 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label for="calle">Calle</label>
-                <input type="text" id="calle" name="calle" required>
-            </div>
-            <div class="form-group">
-                <label for="numero">N°</label>
-                <input type="text" id="numero" name="numero" required>
-            </div>
-            <div class="form-group">
-                <label for="portal">Portal, Escalera, Piso</label>
-                <input type="text" id="portal" name="portal" required>
-            </div>
+                <label for="ubicacion">Ubicación</label>
+                <input type="text" id="ubicacion" name="ubicacion" required>
         </div>
 
         <div class="form-group">
             <label for="contactos">Seleccionar contactos</label>
-            <select id="contactos" name="contactos" required>
+            <select id="contactos" name="contactos">
                 <option value="">Seleccione una opción</option>
                 <option value="contacto1">Contacto 1</option>
                 <option value="contacto2">Contacto 2</option>
@@ -84,7 +75,7 @@
             <label for="situacion">Situación</label>
             <textarea id="situacion" name="situacion" rows="5" required></textarea>
         </div>
-
+        <br><br>
         <button type="submit" class="submit-button">Enviar</button>
     </form>
 </div>
