@@ -173,7 +173,6 @@
 
         <div class="form-group">
             <label for="situacion">Situación</label>
-            <textarea id="situacion" name="situacion" rows="5" placeholder="Explique brevemente el motivo de la alerta"required></textarea>
             <textarea id="situacion" name="situacion" rows="5" default=$alerta required><?php echo htmlspecialchars($alerta); ?></textarea>
         </div>
         <br><br>
