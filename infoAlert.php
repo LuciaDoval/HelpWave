@@ -34,32 +34,31 @@
     <form action="controlInfoAlert.php" method="POST" id="formulario">
         <div class="form-group">
             <label for="dni">DNI</label>
-            <input type="text" id="dni" name="dni" required>
+            <input type="text" id="dni" name="dni" value="<?php echo isset($user['dni']) ? $user['dni'] : ''; ?>" required>
         </div>
 
         <div class="form-row">
             <div class="form-group">
                 <label for="nombre">Nombre</label>
-                <input type="text" id="nombre" name="nombre" required>
+                <input type="text" id="nombre" name="nombre" value="<?php echo isset($user['nombre']) ? $user['nombre'] : ''; ?>" required>
             </div>
             <div class="form-group">
                 <label for="apellido1">Apellido 1</label>
-                <input type="text" id="apellido1" name="apellido1" required>
+                <input type="text" id="apellido1" name="apellido1" value="<?php echo isset($user['apellido1']) ? $user['apellido1'] : ''; ?>" required>
             </div>
             <div class="form-group">
                 <label for="apellido2">Apellido 2</label>
-                <input type="text" id="apellido2" name="apellido2" required>
-            </div>
-            <div class="form-group">
-                <label for="telefono">Teléfono</label>
-                <input type="text" id="telefono" name="telefono" required>
+                <input type="text" id="apellido2" name="apellido2" value="<?php echo isset($user['apellido2']) ? $user['apellido2'] : ''; ?>" required>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
                 <label for="ubicacion">Ubicación</label>
-                <input type="text" id="ubicacion" name="ubicacion" required>
+                <input type="text" id="ubicacion" name="ubicacion" 
+                value="<?php echo isset($user['calle'], $user['numero'], $user['portal_escalera_piso']) ? $user['calle']
+                . ' ' . $user['numero'] . ', ' . $user['portal_escalera_piso'] : ''; ?>" required>
+            </div>
         </div>
 
         <div class="form-group">

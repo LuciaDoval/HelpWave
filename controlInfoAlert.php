@@ -14,13 +14,30 @@
     }
 
     // Validar entradas
+    $id = $_POST['id'] ?? '';
     $ubicacion = $_POST['ubicacion'] ?? '';
     $situacion = $_POST['situacion'] ?? '';
 
     // Concatenar ubicación a situación
     $situacion = "Ubicacion: " . $ubicacion . ' - ' . $situacion;
 
-    // Consulta segura usando una consulta preparada
+    // Autocompletar datos
+    $query = "SELECT nombre, apellido1, apellido2, dni, telefono, calle, numero, portal_escalera_piso FROM usuarios WHERE id = ?";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param('s', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Verificar si el usuario existe
+    if ($result->num_rows > 0) {
+        // Obtener los datos del usuario
+        $user = $result->fetch_assoc();
+    } else {
+        // Si no se encuentra el usuario, manejar el caso (opcional)
+        echo "No se encontró el usuario.";
+    }
+
+    // Guardar Alerta
     $stmt = $mysqli->prepare("INSERT INTO alertas (situacion) VALUES (?)");
     $stmt->bind_param('s', $ubicacion);
 
