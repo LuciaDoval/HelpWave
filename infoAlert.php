@@ -5,6 +5,9 @@
     define('ERR_CONN', 1); // No se puede conectar a la base de datos
     define('ERR_USER_NOT_FOUND', 2); // Usuario no encontrado
 
+    // Capturar el parámetro de la URL
+    $alerta = $_GET['alerta'] ?? 'desconocido';
+
     // Verificar si el DNI está en la sesión
     if (!isset($_SESSION['dni'])) {
         die('No hay un DNI en la sesión.');
@@ -86,7 +89,6 @@
     $mysqli->close();
 ?>
 
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -103,7 +105,7 @@
     <a href = "principal.html">
         <div class="logo">
             <img src="media/images/logo.png" alt="Emergency Logo">
-            
+
             <span>HELPWAVE</span>
         </div>
         </a>
@@ -172,6 +174,7 @@
         <div class="form-group">
             <label for="situacion">Situación</label>
             <textarea id="situacion" name="situacion" rows="5" placeholder="Explique brevemente el motivo de la alerta"required></textarea>
+            <textarea id="situacion" name="situacion" rows="5" default=$alerta required><?php echo htmlspecialchars($alerta); ?></textarea>
         </div>
         <br><br>
         <button type="submit" class="submit-button">Enviar</button>
