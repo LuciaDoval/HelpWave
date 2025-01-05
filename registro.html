@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelpWave</title>
+    <meta name="author" content="Victor Bellod, Vidhi Sharma, Sergio Maza & Lucía Doval">
+    <meta name="description" content="Web developer working with HTML5, CSS3 and JavaScript">
+    <link rel="icon" type="image/x-icon" href="media/images/logo.png">
+    <link rel="stylesheet" href="css/styles.css" type="text/css">
+    <script>
+        // Validación de formulario en el lado del cliente
+        function validarFormulario() {
+            const contraseña = document.getElementById('contraseña').value;
+            const reptContraseña = document.getElementById('reptContraseña').value;
+
+            if (contraseña !== reptContraseña) {
+                alert('❌ Las contraseñas no coinciden. Por favor, verifica e inténtalo de nuevo.');
+                return false;
+            }
+
+            // Validación de longitud de contraseña
+            if (contraseña.length < 6) {
+                alert('❌ La contraseña debe tener al menos 6 caracteres.');
+                return false;
+            }
+
+            // Validación del DNI (Formato básico)
+            const dni = document.getElementById('dni').value;
+            const dniRegex = /^\d{8}[A-Z]$/;
+            if (!dniRegex.test(dni)) {
+                alert('❌ El DNI debe tener 8 números seguidos de una letra mayúscula (ej. 12345678A).');
+                return false;
+            }
+
+            return true; // El formulario es válido
+        }
+    </script>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="media/images/logo.png" alt="Emergency Logo">
+            <span>HELPWAVE</span>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <h1>Registro de Usuario</h1>
+        <form action="ControlRegistro.php" method="POST" id="register" onsubmit="return validarFormulario();">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="apellido1">Apellido 1</label>
+                    <input type="text" id="apellido1" name="apellido1" required>
+                </div>
+                <div class="form-group">
+                    <label for="apellido2">Apellido 2</label>
+                    <input type="text" id="apellido2" name="apellido2" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dni">DNI</label>
+                    <input type="text" id="dni" name="dni" placeholder="12345678A" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="tel" id="telefono" name="telefono" pattern="[0-9]{9}" placeholder="123456789" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="calle">Calle</label>
+                    <input type="text" id="calle" name="calle" required>
+                </div>
+                <div class="form-group">
+                    <label for="numero">N°</label>
+                    <input type="text" id="numero" name="numero" required>
+                </div>
+                <div class="form-group">
+                    <label for="portal">Portal, Escalera, Piso</label>
+                    <input type="text" id="portal" name="portal" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="contraseña">Contraseña</label>
+                    <input type="password" id="contraseña" name="contraseña" minlength="6" required>
+                </div>
+                <div class="form-group">
+                    <label for="reptContraseña">Repetir Contraseña</label>
+                    <input type="password" id="reptContraseña" name="reptContraseña" required>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-button">Registrarse</button>
+        </form>
+    </div>
+</body>
+</html>

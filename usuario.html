@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelpWave</title>
+    <meta name="author" content="Victor Bellod, Vidhi Sharma, Sergio Maza & Lucía Doval">
+    <meta name="description" content="Web developer working with HTML5, CSS3 and JavaScript">
+    <link rel="icon" type="image/x-icon" href="media/images/logo.png">
+    <link rel="stylesheet" href="css/styles.css" type="text/css">
+</head>
+<body>
+<div class="header">
+    <a href = "principal.html">
+        <div class="logo">
+            <img src="media/images/logo.png" alt="Emergency Logo">
+            
+            <span>HELPWAVE</span>
+        </div>
+        </a>
+    <div class="menu">
+        <a href="usuario.html" class="user-link">
+            <i class="user-icon">👤</i>
+        </a>
+        <i class="menu-icon" onclick="toggleMenu()">☰</i>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="principal.html">Principal</a>
+            <a href="contactos.html">Contactos</a>
+        </div>
+    </div>
+</div>
+
+<div class="form-container">
+    <h1>Datos de usuario:</h1>
+    <form action="principal.html" method="GET" id="usuario">
+        <div class ="form-row">
+            <div class="form-group">
+                <label for="nombre">Nombre</label>
+                <input type="text" id="nombre" name="nombre">
+            </div>
+            <div class="form-group">
+                <label for="apellido1">Apellido 1</label>
+                <input type="text" id="apellido1" name="apellido1">
+            </div>
+            <div class="form-group">
+                <label for="apellido2">Apellido 2</label>
+                <input type="text" id="apellido2" name="apellido2">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="dni">DNI</label>
+                <input type="text" id="dni" name="dni">
+            </div>
+
+            <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input type="text" id="telefono" name="telefono">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="calle">Calle</label>
+                <input type="text" id="calle" name="calle">
+            </div>
+            <div class="form-group">
+                <label for="numero">N°</label>
+                <input type="text" id="numero" name="numero">
+            </div>
+            <div class="form-group">
+                <label for="portal">Portal, Escalera, Piso</label>
+                <input type="text" id="portal" name="portal">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="contraseña">Contraseña</label>
+                <input type="text" id="contraseña" name="contraseña">
+            </div>
+        </div>
+
+        <button type="submit" class="submit-button">Ir</button>
+    </form>
+</div>
+
+<script>
+    // Función para mostrar u ocultar el menú desplegable
+    function toggleMenu() {
+        const menuDropdown = document.getElementById("menuDropdown");
+        if (menuDropdown.style.display === "none" || menuDropdown.style.display === "") {
+            menuDropdown.style.display = "block";
+        } else {
+            menuDropdown.style.display = "none";
+        }
+    }
+
+    // Cerrar el menú si se hace clic fuera de él
+    window.onclick = function(event) {
+        const menuDropdown = document.getElementById("menuDropdown");
+        if (!event.target.matches('.menu-icon') && !event.target.matches('.menu-dropdown') && !event.target.closest('.menu-dropdown')) {
+            if (menuDropdown.style.display === "block") {
+                menuDropdown.style.display = "none";
+            }
+        }
+    };
+</script>
+
+</body>
+</html>
