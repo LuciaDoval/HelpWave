@@ -1,3 +1,92 @@
+<?php
+    session_start();
+
+    // Definir códigos de error
+    define('ERR_CONN', 1); // No se puede conectar a la base de datos
+    define('ERR_USER_NOT_FOUND', 2); // Usuario no encontrado
+
+    // Verificar si el DNI está en la sesión
+    if (!isset($_SESSION['dni'])) {
+        die('No hay un DNI en la sesión.');
+    }
+
+    // Recuperrar DNI
+    $dni = $_SESSION['dni'];
+
+    // Conexión a la base de datos
+    $mysqli = new mysqli('localhost', 'root', '', 'helpwave_db');
+    $mysqli->set_charset('utf8');
+
+    // Verificar conexión
+    if ($mysqli->connect_errno) {
+        header('Location: controlLogin.php?error=' . ERR_CONN);
+        $mysqli->close(); 
+        exit;
+    }
+
+    // Buscar ID del usuario por DNI
+    $stmt_user_id = $mysqli->prepare("SELECT id FROM usuarios WHERE dni = ?");
+    $stmt_user_id->bind_param('s', $dni);
+    $stmt_user_id->execute();
+    $result_user_id = $stmt_user_id->get_result();
+
+    // Verificar si se encontró el usuario
+    if ($result_user_id->num_rows === 0) {
+        header('Location: controlLogin.php?error=' . ERR_USER_NOT_FOUND);
+        $stmt_user_id->close();
+        $mysqli->close();
+        exit;
+    }
+
+    // Obtener el ID del usuario
+    $user = $result_user_id->fetch_assoc();
+    $user_id = $user['id'];
+    $stmt_user_id->close();
+
+    // Obtener datos del usuario
+    $stmt_user_data = $mysqli->prepare("SELECT nombre, apellido1, apellido2, dni, telefono, calle, numero, portal_escalera_piso FROM usuarios WHERE id = ?");
+    $stmt_user_data->bind_param('i', $user_id);
+    $stmt_user_data->execute();
+    $result_user_data = $stmt_user_data->get_result();
+
+    // Comprobar si hay datos
+    if ($result_user_data->num_rows > 0) {
+        $user = $result_user_data->fetch_assoc();
+    } else {
+        $user = null;
+    }
+    $stmt_user_data->close();
+
+    // Obtener contactos del usuario
+    $stmt_contacts = $mysqli->prepare("SELECT contacto_id FROM usuario_contacto WHERE usuario_id = ?");
+    $stmt_contacts->bind_param('i', $user_id);
+    $stmt_contacts->execute();
+    $result_contacts = $stmt_contacts->get_result();
+    $contactos = [];
+
+    // Verificar si hay contactos
+    if ($result_contacts->num_rows > 0) {
+        while ($contacto = $result_contacts->fetch_assoc()) {
+            // Obtener el nombre del usuario relacionado al contacto_id
+            $stmt_contact_name = $mysqli->prepare("SELECT nombre FROM usuarios WHERE id = ?");
+            $stmt_contact_name->bind_param('i', $contacto['contacto_id']);
+            $stmt_contact_name->execute();
+            $result_contact_name = $stmt_contact_name->get_result();
+
+            if ($result_contact_name->num_rows > 0) {
+                $contact = $result_contact_name->fetch_assoc();
+                $contactos[] = $contact['nombre'];
+            }
+            $stmt_contact_name->close();
+        }
+    }
+    $stmt_contacts->close();
+
+    // Cerrar conexiones
+    $mysqli->close();
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -56,8 +145,15 @@
             <div class="form-group">
                 <label for="ubicacion">Ubicación</label>
                 <input type="text" id="ubicacion" name="ubicacion" 
-                value="<?php echo isset($user['calle'], $user['numero'], $user['portal_escalera_piso']) ? $user['calle']
-                . ' ' . $user['numero'] . ', ' . $user['portal_escalera_piso'] : ''; ?>" required>
+                value="<?php 
+                    echo isset($user) 
+                        ? trim(
+                            (isset($user['calle']) ? $user['calle'] : '') . ' ' .
+                            (isset($user['numero']) ? $user['numero'] : '') . ', ' .
+                            (isset($user['portal_escalera_piso']) ? $user['portal_escalera_piso'] : '')
+                        , ' ,') 
+                        : ''; ?>" 
+                required>
             </div>
         </div>
 
@@ -65,14 +161,17 @@
             <label for="contactos">Seleccionar contactos</label>
             <select id="contactos" name="contactos">
                 <option value="">Seleccione una opción</option>
-                <option value="contacto1">Contacto 1</option>
-                <option value="contacto2">Contacto 2</option>
+                <?php foreach ($contactos as $nombre): ?>
+                    <option value="<?php echo htmlspecialchars($nombre); ?>">
+                        <?php echo htmlspecialchars($nombre); ?>
+                    </option>
+                <?php endforeach; ?>
             </select>
         </div>
 
         <div class="form-group">
             <label for="situacion">Situación</label>
-            <textarea id="situacion" name="situacion" rows="5" required></textarea>
+            <textarea id="situacion" name="situacion" rows="5" placeholder="Explique brevemente el motivo de la alerta"required></textarea>
         </div>
         <br><br>
         <button type="submit" class="submit-button">Enviar</button>

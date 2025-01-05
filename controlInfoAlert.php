@@ -1,11 +1,12 @@
 <?php
     // Definir códigos de error
     define('ERR_CONN', 1); // No se puede conectar a la base de datos
+    define('ERR_USER_NOT_FOUND', 2); // Usuario no encontrado
 
     // Conexión a la base de datos
     $mysqli = new mysqli('localhost', 'root', '', 'helpwave_db'); 
     $mysqli->set_charset('utf8');
-
+    
     // Verificar conexión
     if ($mysqli->connect_errno) {
         header('Location: controlLogin.php?error=' . ERR_CONN);
@@ -13,33 +14,35 @@
         exit;
     }
 
-    // Validar entradas
-    $id = $_POST['id'] ?? '';
+    // Recuperar variables
+    $dni = $_POST['dni'];
     $ubicacion = $_POST['ubicacion'] ?? '';
     $situacion = $_POST['situacion'] ?? '';
 
     // Concatenar ubicación a situación
     $situacion = "Ubicacion: " . $ubicacion . ' - ' . $situacion;
 
-    // Autocompletar datos
-    $query = "SELECT nombre, apellido1, apellido2, dni, telefono, calle, numero, portal_escalera_piso FROM usuarios WHERE id = ?";
-    $stmt = $mysqli->prepare($query);
-    $stmt->bind_param('s', $id);
+    // Buscar ID del usuario por DNI
+    $stmt = $mysqli->prepare("SELECT id FROM usuarios WHERE dni = ?");
+    $stmt->bind_param('s', $dni);
     $stmt->execute();
     $result = $stmt->get_result();
 
-    // Verificar si el usuario existe
-    if ($result->num_rows > 0) {
-        // Obtener los datos del usuario
-        $user = $result->fetch_assoc();
-    } else {
-        // Si no se encuentra el usuario, manejar el caso (opcional)
-        echo "No se encontró el usuario.";
+    // Verificar si se encontró el usuario
+    if ($result->num_rows === 0) {
+        header('Location: controlLogin.php?error=' . ERR_USER_NOT_FOUND);
+        $stmt->close();
+        $mysqli->close();
+        exit;
     }
 
+    // Obtener el ID del usuario
+    $user = $result->fetch_assoc();
+    $user_id = $user['id'];
+    
     // Guardar Alerta
-    $stmt = $mysqli->prepare("INSERT INTO alertas (situacion) VALUES (?)");
-    $stmt->bind_param('s', $ubicacion);
+    $stmt = $mysqli->prepare("INSERT INTO alertas (situacion, usuario_id) VALUES (?, ?)");
+    $stmt->bind_param('si', $situacion, $user_id);
 
     // Ejecutar la consulta
     if ($stmt->execute()) {
@@ -48,4 +51,8 @@
     } else {
         echo "❌ Error al enviar la alerta: " . $stmt->error;
     }
+
+    // Cerrar conexiones
+    $stmt->close();
+    $mysqli->close();
 ?>
