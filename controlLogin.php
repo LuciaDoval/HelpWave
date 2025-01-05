@@ -45,7 +45,7 @@ if ($result->num_rows > 0) {
 }
 
 // Validar la contraseña (usando hash)
-if ($password == $pass_hash) {
+if ( password_verify($password, $pass_hash)) {
     session_start();
     $_SESSION['dni'] = $usuario_id; // Usamos el ID del usuario para la sesión
     $_SESSION['nombre'] = $nombre;

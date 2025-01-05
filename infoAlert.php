@@ -1,3 +1,11 @@
+<?php
+session_start();
+
+// Capturar el parámetro de la URL
+$alerta = $_GET['alerta'] ?? 'desconocido';
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,7 +22,7 @@
     <a href = "principal.html">
         <div class="logo">
             <img src="media/images/logo.png" alt="Emergency Logo">
-            
+
             <span>HELPWAVE</span>
         </div>
         </a>
@@ -72,7 +80,7 @@
 
         <div class="form-group">
             <label for="situacion">Situación</label>
-            <textarea id="situacion" name="situacion" rows="5" required></textarea>
+            <textarea id="situacion" name="situacion" rows="5" default=$alerta required><?php echo htmlspecialchars($alerta); ?></textarea>
         </div>
         <br><br>
         <button type="submit" class="submit-button">Enviar</button>
