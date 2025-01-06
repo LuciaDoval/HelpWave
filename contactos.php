@@ -2,6 +2,7 @@
     // Definir códigos de error
     define('ERR_CONN', 1); // No se puede conectar a la base de datos
     define('ERR_USER_NOT_FOUND', 2); // Usuario no encontrado
+    define('ERR_INSERT', 3); // Error al insertar en la base de datos
 
     // Conexión a la base de datos
     $mysqli = new mysqli('localhost', 'root', '', 'helpwave_db');
@@ -9,15 +10,13 @@
 
     // Verificar conexión
     if ($mysqli->connect_errno) {
-        header('Location: controlLogin.php?error=' . ERR_CONN);
-        $mysqli->close();
-        exit;
+        die('Error de conexión: ' . $mysqli->connect_error);
     }
 
-    // Recuperar variables
-    $dni = $_POST['dni'];
-    $ubicacion = $_POST['relacion'] ?? '';
-    $situacion = $_POST['otra'] ?? '';
+    // Recuperar variables del formulario
+    $dni = $_POST['dni'] ?? '';
+    $relacion = $_POST['relacion'] ?? '';
+    $otraRelacion = $_POST['otra'] ?? '';
 
     // Usar "otraRelacion" si "relacion" es "otra"
     if ($relacion === 'otra' && !empty($otraRelacion)) {
@@ -26,50 +25,77 @@
 
     // Validar datos
     if (empty($dni) || empty($relacion)) {
-        header('Location: contactos.html?error=Datos incompletos');
-        $mysqli->close();
-        exit;
+        die('Error: Datos incompletos. Por favor, rellene todos los campos.');
     }
 
-
-    // Buscar ID del usuario por DNI
+    // 1. Verificar si el usuario con ese DNI existe
     $stmt = $mysqli->prepare("SELECT id FROM usuarios WHERE dni = ?");
+    if (!$stmt) {
+        die('Error al preparar la consulta para obtener el usuario: ' . $mysqli->error);
+    }
+
     $stmt->bind_param('s', $dni);
     $stmt->execute();
     $result = $stmt->get_result();
 
     // Verificar si se encontró el usuario
     if ($result->num_rows === 0) {
-        header('Location: controlLogin.php?error=' . ERR_USER_NOT_FOUND);
-        $stmt->close();
-        $mysqli->close();
-        exit;
+        die('Error: Usuario con DNI no encontrado.');
     }
 
-    // Obtener el ID del usuario
+    // Obtener el ID del contacto (usuario relacionado)
     $user = $result->fetch_assoc();
-    $user_id = $user['id'];
+    $contacto_id = $user['id']; // El ID del usuario relacionado
 
-    // Preparar consulta SQL para insertar los datos en la tabla usuario_contacto
+    // 2. Verificar si el usuario actual está en la sesión
+    session_start();
+    if (!isset($_SESSION['usuario'])) {
+        die('Error: Sesión no iniciada.');
+    }
+
+    $usuario_actual = $_SESSION['usuario'];
+    $query = "SELECT id FROM usuarios WHERE username = ?";
+    $stmt = $mysqli->prepare($query);
+    if (!$stmt) {
+        die('Error al preparar la consulta para obtener el usuario actual: ' . $mysqli->error);
+    }
+
+    $stmt->bind_param('s', $usuario_actual);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Verificar si se encontró al usuario actual
+    if ($result->num_rows === 0) {
+        die('Error: Usuario actual no encontrado.');
+    }
+
+    // Obtener el ID del usuario actual
+    $current_user = $result->fetch_assoc();
+    $usuario_id = $current_user['id'];
+
+    // 3. Comprobar los valores obtenidos
+    echo "Usuario actual ID: " . $usuario_id . "<br>";
+    echo "Contacto ID (por DNI): " . $contacto_id . "<br>";
+    echo "Relación: " . $relacion . "<br>";
+
+    // 4. Preparar consulta SQL para insertar los datos en la tabla usuario_contacto
     $stmt = $mysqli->prepare("INSERT INTO usuario_contacto (usuario_id, contacto_id, relacion) VALUES (?, ?, ?)");
-    if ($stmt) {
-        $stmt->bind_param('iis', $usuario_id, $dni, $relacion);
+    if (!$stmt) {
+        die('Error al preparar la consulta de inserción: ' . $mysqli->error);
+    }
 
-        // Ejecutar consulta
-        if ($stmt->execute()) {
-            // Redirigir al usuario a la página principal con éxito
-            header('Location: principal.html?success=1');
-        } else {
-            // Error al insertar
-            header('Location: contactos.html?error=' . ERR_INSERT);
-        }
+    $stmt->bind_param('iis', $usuario_id, $contacto_id, $relacion);
 
-        $stmt->close();
+    // Ejecutar consulta
+    if ($stmt->execute()) {
+        echo 'Datos insertados correctamente.';
+        header('Location: principal.html?success=1');
     } else {
-        // Error al preparar la consulta
-        header('Location: contactos.html?error=' . ERR_INSERT);
+        // Mostrar el error de la consulta SQL
+        die('Error al insertar los datos: ' . $stmt->error);
     }
 
     // Cerrar conexión
+    $stmt->close();
     $mysqli->close();
 ?>
